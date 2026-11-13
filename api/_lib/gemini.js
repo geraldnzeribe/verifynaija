@@ -1,7 +1,7 @@
 import { env } from './env.js';
 // Gemini vision calls: read the label, and compare the pack with a genuine reference photo.
 // Model names change over time; fall back to Google's "latest" alias if the configured one is gone.
-const MODELS = [...new Set([env('GEMINI_MODEL', 'gemini-flash-latest'), 'gemini-flash-latest', 'gemini-2.5-flash'])];
+const MODELS = [...new Set([env('GEMINI_MODEL', 'gemini-flash-latest'), 'gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest'])];
 const URL_ = m => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
 let workingModel = null;
 let noThinkingOk = null;   // null = untested, false = model rejected thinkingConfig
@@ -21,12 +21,20 @@ async function ask(parts, schema) {
       ...(fast ? { thinkingConfig: { thinkingBudget: 0 } } : {}) },
   });
   let lastErr;
-  for (const m of workingModel ? [workingModel] : MODELS) {
+  const started = Date.now();
+  // Try the model that worked last time first, then the others. Busy (429/5xx) or missing (404) models are skipped.
+  const order = workingModel ? [workingModel, ...MODELS.filter(m => m !== workingModel)] : MODELS;
+  for (const m of order) {
+    if (Date.now() - started > 40000) break;           // stay inside the 60 s function limit
     let res = await post(m, key, makeBody(noThinkingOk !== false));
     if (res.status === 400 && noThinkingOk !== false) {
       const t = await res.text();
       if (/thinking/i.test(t)) { noThinkingOk = false; res = await post(m, key, makeBody(false)); }
       else res = new Response(t, { status: 400 });
+    }
+    if (res.status === 503 || res.status === 429) {     // busy: one quick retry on the same model
+      await new Promise(r => setTimeout(r, 700));
+      res = await post(m, key, makeBody(noThinkingOk !== false));
     }
     if (res.ok) {
       workingModel = m;
@@ -36,7 +44,8 @@ async function ask(parts, schema) {
     }
     const msg = (await res.text()).replace(/\s+/g, ' ').slice(0, 300);
     lastErr = new Error(`Gemini ${res.status} (${m}): ${msg}`);
-    if (res.status !== 404) break;          // only "model not found" is worth retrying with another name
+    if (workingModel === m) workingModel = null;
+    if (![404, 429, 500, 502, 503, 504].includes(res.status)) break;   // e.g. bad key: other models won't help
   }
   throw lastErr;
 }

@@ -7,6 +7,9 @@
 //        peak-milk-400g        | https://www.jumia.com.ng/peak-....html              | food | peak, milk
 //      Use OFFICIAL sources only: the maker's own site, or the brand's official store.
 //      A slug can appear on several lines to collect more than one genuine photo.
+//      Optional 5th field: genuine (default) or fake. A line can also point straight at an image URL,
+//      e.g. a photo of a fake pack from a NAFDAC alert or news article:
+//        postinor-2 | https://site/photo-of-fake.jpg | drug | postinor | fake
 //   2. node tools/fetch_refs.mjs
 //   3. Check each references/<slug>/meta.json (fix the name/brand/NAFDAC number if needed)
 //   4. node tools/build_refs.mjs
@@ -64,30 +67,35 @@ const csv = path.join(refDir, 'sources.csv');
 if (!fs.existsSync(csv)) fs.writeFileSync(csv, 'file,source_url,label,notes\n');
 
 for (const line of lines) {
-  const [slug, url, category = 'other', keywords = ''] = line.split('|').map(s => s.trim());
+  const [slug, url, category = 'other', keywords = '', label = 'genuine'] = line.split('|').map(s => s.trim());
+  const kind = /^fake$/i.test(label) ? 'fake' : 'genuine';
   if (!slug || !/^https?:/.test(url || '')) { console.log('skip (bad line):', line); continue; }
   try {
     if (!(await allowed(url))) { console.log(`skip ${slug}: robots.txt disallows ${url}`); continue; }
-    const res = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'text/html' } });
+    const res = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'text/html,image/*' } });
     if (!res.ok) throw new Error('page ' + res.status);
-    const { image, title } = pick(await res.text(), url);
-    if (!image) throw new Error('no product image found on the page');
-    await sleep(2000);
-    const img = await fetch(image, { headers: { 'User-Agent': UA } });
+    let image, title, img;
+    if ((res.headers.get('content-type') || '').startsWith('image/')) { img = res; image = url; }
+    else {
+      ({ image, title } = pick(await res.text(), url));
+      if (!image) throw new Error('no product image found on the page');
+      await sleep(2000);
+      img = await fetch(image, { headers: { 'User-Agent': UA } });
+    }
     if (!img.ok) throw new Error('image ' + img.status);
     const type = img.headers.get('content-type') || '';
     const ext = type.includes('png') ? '.png' : type.includes('webp') ? '.webp' : '.jpg';
     const dir = path.join(refDir, slug); fs.mkdirSync(dir, { recursive: true });
-    let n = 1; while (fs.readdirSync(dir).some(f => f.startsWith(`genuine-${n}.`))) n++;
-    const file = path.join(dir, `genuine-${n}${ext}`);
+    let n = 1; while (fs.readdirSync(dir).some(f => f.startsWith(`${kind}-${n}.`))) n++;
+    const file = path.join(dir, `${kind}-${n}${ext}`);
     fs.writeFileSync(file, Buffer.from(await img.arrayBuffer()));
     const metaPath = path.join(dir, 'meta.json');
     if (!fs.existsSync(metaPath)) {
       const kw = keywords.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
       fs.writeFileSync(metaPath, JSON.stringify({ name: title || slug, brand: kw[0] || '', keywords: kw, category, nafdac: '', source: new URL(url).hostname }, null, 1));
     }
-    fs.appendFileSync(csv, `${slug}/genuine-${n}${ext},${url},genuine,"${(title || '').replace(/"/g, "'")}"\n`);
-    console.log(`ok   ${slug}/genuine-${n}${ext}  ← ${title || url}`);
+    fs.appendFileSync(csv, `${slug}/${kind}-${n}${ext},${url},${kind},"${(title || '').replace(/"/g, "'")}"\n`);
+    console.log(`ok   ${slug}/${kind}-${n}${ext}  ← ${title || url}`);
   } catch (e) {
     console.log(`fail ${slug}: ${e.message}  (save the photo by hand into references/${slug}/genuine-1.jpg instead)`);
   }
