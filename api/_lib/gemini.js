@@ -1,24 +1,34 @@
 import { env } from './env.js';
 // Gemini vision calls: read the label, and compare the pack with a genuine reference photo.
-const MODEL = env('GEMINI_MODEL', 'gemini-2.5-flash');
+// Model names change over time; fall back to Google's "latest" alias if the configured one is gone.
+const MODELS = [...new Set([env('GEMINI_MODEL', 'gemini-3.5-flash'), 'gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-flash-latest'])];
 const URL_ = m => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
+let workingModel = null;
 
 async function ask(parts, schema) {
   const key = env('GEMINI_API_KEY');
   if (!key) throw new Error('GEMINI_API_KEY is not set');
-  const res = await fetch(URL_(MODEL), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-    body: JSON.stringify({
-      contents: [{ role: 'user', parts }],
-      generationConfig: { temperature: 0.1, responseMimeType: 'application/json', responseSchema: schema },
-    }),
-    signal: AbortSignal.timeout(25000),
+  const body = JSON.stringify({
+    contents: [{ role: 'user', parts }],
+    generationConfig: { temperature: 0.1, responseMimeType: 'application/json', responseSchema: schema },
   });
-  if (!res.ok) throw new Error(`Gemini ${res.status}: ${(await res.text()).slice(0, 200)}`);
-  const j = await res.json();
-  const text = j.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '{}';
-  return JSON.parse(text);
+  let lastErr;
+  for (const m of workingModel ? [workingModel] : MODELS) {
+    const res = await fetch(URL_(m), {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, body,
+      signal: AbortSignal.timeout(25000),
+    });
+    if (res.ok) {
+      workingModel = m;
+      const j = await res.json();
+      const text = j.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '{}';
+      return JSON.parse(text);
+    }
+    const msg = (await res.text()).replace(/\s+/g, ' ').slice(0, 300);
+    lastErr = new Error(`Gemini ${res.status} (${m}): ${msg}`);
+    if (res.status !== 404) break;          // only "model not found" is worth retrying with another name
+  }
+  throw lastErr;
 }
 
 const img = (b64, mime = 'image/jpeg') => ({ inline_data: { mime_type: mime, data: b64 } });
