@@ -1,7 +1,7 @@
 // Measure how well the checker separates fakes from genuine packs.
 //   node tools/evaluate.mjs https://your-app.vercel.app
 // Reads dataset/fakes/<product>/*.jpg and dataset/genuine/<product>/*.jpg (made by tools/build_refs.py),
-// sends each to /api/analyze, and reports how many were flagged (score >= 50) or cautioned (>= 20).
+// sends each to /api/analyze, and reports how many were flagged (score >= 40) or cautioned (>= 15).
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -25,7 +25,7 @@ for (const [truth, dir] of Object.entries(sets)) {
 }
 const pct = (a, b) => b ? Math.round(100 * a / b) + '%' : 'n/a';
 const fakes = rows.filter(r => r.truth === 'fake'), gen = rows.filter(r => r.truth === 'genuine');
-console.log('\nFakes flagged high risk:   ', pct(fakes.filter(r => r.score >= 50).length, fakes.length), `of ${fakes.length}`);
-console.log('Fakes at least cautioned:  ', pct(fakes.filter(r => r.score >= 20).length, fakes.length));
-console.log('Genuine wrongly flagged:   ', pct(gen.filter(r => r.score >= 50).length, gen.length), `of ${gen.length}`);
+console.log('\nFakes flagged high risk:   ', pct(fakes.filter(r => r.score >= 40).length, fakes.length), `of ${fakes.length}`);
+console.log('Fakes at least cautioned:  ', pct(fakes.filter(r => r.score >= 15).length, fakes.length));
+console.log('Genuine wrongly flagged:   ', pct(gen.filter(r => r.score >= 40).length, gen.length), `of ${gen.length}`);
 fs.writeFileSync(path.join(root, 'results.json'), JSON.stringify(rows, null, 1));

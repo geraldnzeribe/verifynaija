@@ -1,23 +1,33 @@
 import { env } from './env.js';
 // Gemini vision calls: read the label, and compare the pack with a genuine reference photo.
 // Model names change over time; fall back to Google's "latest" alias if the configured one is gone.
-const MODELS = [...new Set([env('GEMINI_MODEL', 'gemini-3.5-flash'), 'gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-flash-latest'])];
+const MODELS = [...new Set([env('GEMINI_MODEL', 'gemini-flash-latest'), 'gemini-flash-latest', 'gemini-2.5-flash'])];
 const URL_ = m => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
 let workingModel = null;
+let noThinkingOk = null;   // null = untested, false = model rejected thinkingConfig
+const post = (m, key, body) => fetch(URL_(m), {
+  method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, body,
+  signal: AbortSignal.timeout(25000),
+});
 
 async function ask(parts, schema) {
   const key = env('GEMINI_API_KEY');
   if (!key) throw new Error('GEMINI_API_KEY is not set');
-  const body = JSON.stringify({
+  // Reading a label doesn't need the model to "think" first; turning that off cuts response time a lot.
+  // Not every model accepts the setting, so fall back to a request without it on a 400.
+  const makeBody = fast => JSON.stringify({
     contents: [{ role: 'user', parts }],
-    generationConfig: { temperature: 0.1, responseMimeType: 'application/json', responseSchema: schema },
+    generationConfig: { temperature: 0.1, responseMimeType: 'application/json', responseSchema: schema,
+      ...(fast ? { thinkingConfig: { thinkingBudget: 0 } } : {}) },
   });
   let lastErr;
   for (const m of workingModel ? [workingModel] : MODELS) {
-    const res = await fetch(URL_(m), {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, body,
-      signal: AbortSignal.timeout(55000),
-    });
+    let res = await post(m, key, makeBody(noThinkingOk !== false));
+    if (res.status === 400 && noThinkingOk !== false) {
+      const t = await res.text();
+      if (/thinking/i.test(t)) { noThinkingOk = false; res = await post(m, key, makeBody(false)); }
+      else res = new Response(t, { status: 400 });
+    }
     if (res.ok) {
       workingModel = m;
       const j = await res.json();
@@ -26,7 +36,7 @@ async function ask(parts, schema) {
     }
     const msg = (await res.text()).replace(/\s+/g, ' ').slice(0, 300);
     lastErr = new Error(`Gemini ${res.status} (${m}): ${msg}`);
-    if (res.status !== 404 && res.status !== 503) break; // retry next model on "not found" or "overloaded"
+    if (res.status !== 404) break;          // only "model not found" is worth retrying with another name
   }
   throw lastErr;
 }
@@ -91,11 +101,11 @@ const COMPARE_SCHEMA = {
   required: ['same_product', 'similarity', 'differences'],
 };
 
-export async function comparePacks(photoB64, refB64, refName) {
+export async function comparePacks(photoB64, refB64, refName, refMime = 'image/jpeg') {
   const prompt = `Photo A was taken by a shopper. Photo B is a genuine pack of "${refName}" from the manufacturer or a trusted retailer.
 Compare the PACKAGING DESIGN of A against B: logo shape and typeface, colours, layout, text wording and spelling, security features, print quality.
 Ignore differences caused only by lighting, camera angle, blur, background or a different pack size/strength.
 Give a similarity score from 0 to 100 (100 = identical design). List up to 4 real design differences with their location in photo A.
 If A and B are different products altogether, set same_product to false.`;
-  return ask([{ text: prompt }, { text: 'Photo A (shopper):' }, img(photoB64), { text: 'Photo B (genuine):' }, img(refB64)], COMPARE_SCHEMA);
+  return ask([{ text: prompt }, { text: 'Photo A (shopper):' }, img(photoB64), { text: 'Photo B (genuine):' }, img(refB64, refMime)], COMPARE_SCHEMA);
 }

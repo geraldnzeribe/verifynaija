@@ -11,4 +11,8 @@ One folder per product. Copy `_example/` and rename it (lowercase, hyphens), e.g
 
 Write the source of every photo in `sources.csv` (file, source URL, notes). Photos are not committed to git.
 
-Then run `python3 tools/build_refs.py`.
+Then run `node tools/build_refs.mjs` (or `python3 tools/build_refs.py`).
+
+**Faster way to get genuine photos:** list official product pages in `links.txt` and run
+`node tools/fetch_refs.mjs`. It checks robots.txt, waits between requests, downloads each page's
+main product image into the right folder and writes a starter `meta.json` for you to check.

@@ -14,7 +14,7 @@ assert.equal(r.level, 'low'); assert.equal(r.flags, 0); assert.equal(r.headline,
 r = scoreCheck({ isDrug: true,
   label: { nafdac_number: '04-9921', issues: [{ title: 'Spelling error on the label', detail: '"Paracetemol"' }] },
   greenbook: { status: 'not_found', suggestion: rec }, visual: { similarity: 42, differences: [{ what: 'Logo typeface differs' }] }, reports: 6 });
-assert.equal(r.level, 'high'); assert.equal(r.flags, 3); assert.equal(r.score, 92);
+assert.equal(r.level, 'high'); assert.equal(r.flags, 3); assert.equal(r.score, 100);
 assert.equal(r.reasons[0].level, 'flag');
 
 // Lapsed registration is a caution, not a red flag
@@ -27,9 +27,13 @@ r = scoreCheck({ isDrug: false, label: { read_ok: true, issues: [] }, visual: { 
 assert.equal(r.score, 12); assert.equal(r.level, 'low');
 assert.ok(r.reasons.some(x => /Not covered by the Greenbook/.test(x.title)));
 
+// Two label problems on a medicine (e.g. misspelt drug name + expired) is high risk
+r = scoreCheck({ isDrug: true, label: { nafdac_number: '04-0411', issues: [{ title: 'a', detail: 'b' }, { title: 'c', detail: 'd' }] }, greenbook: { status: 'match', record: rec } });
+assert.equal(r.score, 44); assert.equal(r.level, 'high');
+
 // Label issues are capped
 r = scoreCheck({ isDrug: false, label: { issues: Array(6).fill({ title: 'x', detail: 'y' }) } });
-assert.equal(r.score, 36);
+assert.equal(r.score, 50);
 
 // Report validation
 const c = cleanReport({ product: ' Lonart DS ', state: 'Anambra', price: '1500.4', photo: 'a'.repeat(64), flags: ['a', 7, 'b'], evil: 'x' });

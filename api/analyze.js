@@ -2,7 +2,7 @@
 // Reads the label, checks the Greenbook, compares with the genuine pack, and scores it.
 import { readLabel, comparePacks } from './_lib/gemini.js';
 import { checkGreenbook } from './_lib/greenbook.js';
-import { findRef, refImageB64 } from './_lib/references.js';
+import { findRef, refImageB64, refImageMime } from './_lib/references.js';
 import { scoreCheck } from './_lib/scoring.js';
 import { rateLimit } from './_lib/ratelimit.js';
 
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
 
     const [greenbook, visual] = await Promise.all([
       isDrug ? checkGreenbook(label) : Promise.resolve(null),
-      ref ? comparePacks(image, refImageB64(ref), ref.name).catch(() => null) : Promise.resolve(null),
+      ref ? comparePacks(image, refImageB64(ref), ref.name, refImageMime(ref)).catch(() => null) : Promise.resolve(null),
     ]);
     const vis = visual && visual.same_product === false ? null : visual;
 
@@ -51,6 +51,8 @@ export default async function handler(req, res) {
     });
   } catch (e) {
     console.error(e);
-    res.status(502).json({ error: 'The check didn\'t finish. Try again in a moment.' });
+    // Safe diagnostic: Gemini's own error text (never contains the API key)
+    const detail = /^(Gemini|GEMINI)/.test(e.message) ? e.message.slice(0, 240) : undefined;
+    res.status(502).json({ error: 'The check didn\'t finish. Try again in a moment.', detail });
   }
 }

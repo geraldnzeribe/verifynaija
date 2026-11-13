@@ -8,8 +8,8 @@ const W = {
   nafdacMismatch: 30,     // number exists but belongs to a different product or holder
   nafdacMissing: 20,      // a medicine with no NAFDAC number visible
   regLapsed: 10,          // registration marked inactive / expired in the Greenbook
-  labelIssue: 12,         // each label problem (spelling, blurry print, missing batch/expiry)
-  labelIssueCap: 36,
+  labelIssue: 22,         // each label problem (spelling, blurry print, missing batch/expiry)
+  labelIssueCap: 50,
   visualLow: 30,          // pack looks clearly different from the genuine pack
   visualMid: 12,          // some visual differences
   reportsSome: 8,         // 1-4 reports of this product in the last 30 days
@@ -76,7 +76,7 @@ export function scoreCheck({ label = {}, greenbook = null, visual = null, report
 
   score = Math.max(0, Math.min(100, score));
   const flags = reasons.filter(r => r.level === 'flag').length;
-  const level = score >= 50 ? 'high' : score >= 20 ? 'medium' : 'low';
+  const level = score >= 40 ? 'high' : score >= 15 ? 'medium' : 'low';
   const headline = flags ? `${flags} red flag${flags > 1 ? 's' : ''} on this pack`
     : level === 'medium' ? 'A few things to check' : 'No red flags found';
   const order = { flag: 0, warn: 1, info: 2, ok: 3 };

@@ -46,7 +46,9 @@ const cfgReady = fetch('/api/config').then(r => r.ok ? r.json() : CFG).then(c =>
   const chip = $('#netChip');
   chip.textContent = 'NEAR ' + c.network;
   if (c.contractId) chip.href = `https://${c.network === 'mainnet' ? '' : 'testnet.'}nearblocks.io/address/${c.contractId}`;
+  if (c.contractId && $('#sideContract')) $('#sideContract').href = chip.href;
 }).catch(() => {});
+cfgReady.then(() => view('get_count')).then(n => { if ($('#statReports')) $('#statReports').textContent = n.toLocaleString(); }).catch(() => {});
 
 async function view(method, args = {}) {
   await cfgReady;
@@ -79,11 +81,11 @@ const recent = (r, days = 30) => (BigInt(Date.now()) * 1_000_000n - BigInt(r.ts)
 /* ---------- Photo handling ---------- */
 async function prepPhoto(file) {
   const bmp = await createImageBitmap(file);
-  const scale = Math.min(1, 1280 / Math.max(bmp.width, bmp.height));
+  const scale = Math.min(1, 1024 / Math.max(bmp.width, bmp.height));
   const c = document.createElement('canvas');
   c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
   c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
-  const dataUrl = c.toDataURL('image/jpeg', 0.85);
+  const dataUrl = c.toDataURL('image/jpeg', 0.8);
   const b64 = dataUrl.split(',')[1];
   const bytes = Uint8Array.from(atob(b64), ch => ch.charCodeAt(0));
   const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(b => b.toString(16).padStart(2, '0')).join('');
@@ -158,7 +160,7 @@ async function addChainReports(data) {
   data.score = Math.min(100, data.score + pts);
   data.reasons.splice(data.reasons.filter(r => r.level === 'flag').length, 0,
     { level: 'warn', title: `${n} report${n > 1 ? 's' : ''} of this product`, detail: 'Other buyers reported it as fake in the last 30 days.' });
-  data.level = data.score >= 50 ? 'high' : data.score >= 20 ? 'medium' : 'low';
+  data.level = data.score >= 40 ? 'high' : data.score >= 15 ? 'medium' : 'low';
   if (!data.flags) data.headline = data.level === 'low' ? 'No red flags found' : 'A few things to check';
 }
 
@@ -201,8 +203,10 @@ function showResult(d, photoUrl) {
        .filter(x => x[1]).map(x => `<div><dt>${x[0]}</dt><dd>${esc(x[1])}</dd></div>`).join('')}</dl>
      <p class="mapnote">${g.source === 'snapshot' ? 'From our saved copy of the Greenbook.' : 'Live from greenbook.nafdac.gov.ng.'}</p>
    </div>` : ''}
+   ${(d.label?.category === 'drug' || d.greenbook) ? `<div class="tip"><b>Does the pack have a scratch-off panel?</b>Many medicines carry one. Scratch it and text the code to the number printed beside it. The reply tells you if that exact pack is genuine.</div>` : ''}
    <div class="actions">
      ${d.level !== 'low' ? '<button class="btn danger" id="btnReport">Report this as fake</button>' : '<button class="btn ghost" id="btnReport">Report a problem anyway</button>'}
+     <a class="share" href="https://wa.me/?text=${encodeURIComponent(shareText(d))}" target="_blank" rel="noopener">Warn others on WhatsApp</a>
      <button class="btn ghost" data-go="home">Check another product</button>
    </div>
    <p class="note">VerifyNaija flags warning signs. It never confirms a product is genuine. If you're unsure about a medicine, ask a pharmacist or call NAFDAC on 0800-162-3322.</p>`;
@@ -213,6 +217,14 @@ function showResult(d, photoUrl) {
     let n = 0; const t = setInterval(() => { n += Math.max(1, Math.ceil(d.score / 20)); if (n >= d.score) { n = d.score; clearInterval(t); } $('#scoreNum').textContent = n; }, 45);
   }));
   $('#btnReport').onclick = () => openReport(d);
+}
+
+function shareText(d) {
+  const what = [d.label?.brand, d.label?.product_name].filter(Boolean).join(' ') || 'this product';
+  const top = d.reasons.filter(r => r.level === 'flag').slice(0, 2).map(r => '• ' + r.title).join('\n');
+  return d.level === 'low'
+    ? `I checked ${what} on VerifyNaija: no red flags found. Check your products before you buy: ${location.origin}`
+    : `⚠️ VerifyNaija flagged ${what} (risk score ${d.score}/100)\n${top}\nCheck your products before you buy: ${location.origin}`;
 }
 
 /* ---------- Samples (work offline; fictional brands) ---------- */

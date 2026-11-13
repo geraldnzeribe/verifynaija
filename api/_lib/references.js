@@ -34,3 +34,8 @@ export function refImageB64(ref) {
   if (!rel) return null;
   return fs.readFileSync(path.join(process.cwd(), 'public', rel.replace(/^\//, ''))).toString('base64');
 }
+
+export function refImageMime(ref) {
+  const rel = (ref.images || [])[0] || '';
+  return /\.png$/i.test(rel) ? 'image/png' : /\.webp$/i.test(rel) ? 'image/webp' : 'image/jpeg';
+}

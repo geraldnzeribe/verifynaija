@@ -9,3 +9,6 @@ references/**/*.png
 references/**/*.webp
 !references/_example/**
 *.log
+
+.vercel
+.env*

@@ -1,0 +1,7 @@
+# Official product pages to collect genuine reference photos from.
+# One per line:  slug | page URL | category | keywords (first keyword = brand)
+# Categories: drug, food, personal_care, electronics, other
+# Use OFFICIAL sources only: the maker's own website, or the brand's official store.
+# Then run:  node tools/fetch_refs.mjs   and then   node tools/build_refs.mjs
+#
+# emzor-paracetamol-500 | https://<maker-site>/<product-page> | drug | emzor, paracetamol
