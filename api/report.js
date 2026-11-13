@@ -1,11 +1,12 @@
+import { env } from './_lib/env.js';
 // POST /api/report  — saves a counterfeit report on NEAR.
 // The server relays the transaction and pays the gas, so shoppers don't need a crypto wallet.
 // The contract stamps the block time; the report body is validated and trimmed here first.
 import { connect, keyStores, KeyPair } from 'near-api-js';
 import { rateLimit } from './_lib/ratelimit.js';
 
-const NETWORK = process.env.NEAR_NETWORK || 'testnet';
-const NODE = process.env.NEAR_RPC || (NETWORK === 'mainnet' ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org');
+const NETWORK = env('NEAR_NETWORK', 'testnet');
+const NODE = env('NEAR_RPC') || (NETWORK === 'mainnet' ? 'https://rpc.mainnet.near.org' : 'https://rpc.testnet.near.org');
 const CATEGORIES = ['drug', 'food', 'personal_care', 'electronics', 'other'];
 
 const str = (v, max) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, max) : '');
@@ -32,7 +33,7 @@ export function cleanReport(b = {}) {
 let accountP = null;
 async function relayer() {
   if (!accountP) {
-    const id = process.env.NEAR_ACCOUNT_ID, key = process.env.NEAR_PRIVATE_KEY;
+    const id = env('NEAR_ACCOUNT_ID'), key = env('NEAR_PRIVATE_KEY');
     if (!id || !key) throw new Error('NEAR relayer is not configured');
     const ks = new keyStores.InMemoryKeyStore();
     await ks.setKey(NETWORK, id, KeyPair.fromString(key));
@@ -54,7 +55,7 @@ export default async function handler(req, res) {
     }
     const account = await relayer();
     const out = await account.functionCall({
-      contractId: process.env.NEAR_CONTRACT_ID || process.env.NEAR_ACCOUNT_ID,
+      contractId: env('NEAR_CONTRACT_ID') || env('NEAR_ACCOUNT_ID'),
       methodName: 'submit_report',
       args: JSON.parse(JSON.stringify(report)),        // drop undefined fields
       gas: 30_000_000_000_000n,

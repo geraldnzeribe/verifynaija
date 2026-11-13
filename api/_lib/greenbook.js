@@ -91,7 +91,7 @@ export async function checkGreenbook(label) {
   const name = label.brand || label.product_name;
   if (name) {
     try {
-      const byName = source === 'live' ? await query('product_name', name.split(/\s+/).slice(0, 2).join(' '), 5)
+      const byName = source === 'live' ? await query('product_name', name.split(/[\s-]+/)[0], 10)
         : loadSnapshot().filter(r => words(r.name).some(w => words(name).includes(w)));
       suggestion = byName.find(r => r.status === 'Active') || byName[0] || null;
     } catch { /* suggestion is optional */ }

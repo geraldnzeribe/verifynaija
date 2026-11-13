@@ -1,9 +1,10 @@
+import { env } from './env.js';
 // Gemini vision calls: read the label, and compare the pack with a genuine reference photo.
-const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const MODEL = env('GEMINI_MODEL', 'gemini-2.5-flash');
 const URL_ = m => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
 
 async function ask(parts, schema) {
-  const key = process.env.GEMINI_API_KEY;
+  const key = env('GEMINI_API_KEY');
   if (!key) throw new Error('GEMINI_API_KEY is not set');
   const res = await fetch(URL_(MODEL), {
     method: 'POST',
