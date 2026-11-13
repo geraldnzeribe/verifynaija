@@ -26,7 +26,7 @@ async function ask(parts, schema) {
     }
     const msg = (await res.text()).replace(/\s+/g, ' ').slice(0, 300);
     lastErr = new Error(`Gemini ${res.status} (${m}): ${msg}`);
-    if (res.status !== 404) break;          // only "model not found" is worth retrying with another name
+    if (res.status !== 404 && res.status !== 503) break; // retry next model on "not found" or "overloaded"
   }
   throw lastErr;
 }
