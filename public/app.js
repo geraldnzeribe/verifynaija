@@ -26,7 +26,7 @@ function sealSVG() {
 function go(id) {
   $$('.screen').forEach(s => s.classList.remove('on'));
   $('#s-' + id).classList.add('on'); window.scrollTo(0, 0);
-  const tab = { home: 'home', nafdac: 'home', scan: 'home', result: 'home', map: 'map', mine: 'mine' }[id];
+  const tab = { home: 'home', shots: 'home', nafdac: 'home', scan: 'home', result: 'home', map: 'map', mine: 'mine' }[id];
   $$('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
   if (id === 'map') showMap();
   if (id === 'mine') showMine();
@@ -94,14 +94,33 @@ async function prepPhoto(file) {
 
 /* ---------- Scan flow ---------- */
 let current = null;
-$('#btnPhoto').onclick = () => $('#file').click();
+const SLOTS = [['Front', 'Brand and product name'], ['Back or side', 'NAFDAC number'], ['Another angle', 'Batch and expiry date']];
+let shots = [null, null, null], slot = 0;
+function drawShots() {
+  $('#shots').innerHTML = SLOTS.map(([t, hint], i) => `<div class="shot ${shots[i] ? 'filled' : ''}">
+    <button class="frame" data-slot="${i}" aria-label="${shots[i] ? 'Retake' : 'Take'} photo: ${t}">
+      ${shots[i] ? `<img src="${shots[i].dataUrl}" alt="">` : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'}
+    </button>
+    ${shots[i] ? `<button class="rm" data-rm="${i}" aria-label="Remove photo: ${t}">×</button>` : ''}
+    <b>${t}${i === 0 ? '' : ' <span>(optional)</span>'}</b><span>${hint}</span></div>`).join('');
+  const n = shots.filter(Boolean).length;
+  $('#btnCheck').disabled = !n;
+  $('#btnCheck').textContent = n > 1 ? `Check this product with ${n} photos` : 'Check this product';
+}
+function pick(i) { slot = i; $('#file').click(); }
+$('#btnPhoto').onclick = () => { shots = [null, null, null]; showErr($('#shotErr'), ''); drawShots(); go('shots'); pick(0); };
+$('#shots').onclick = e => {
+  const rm = e.target.closest('[data-rm]'); if (rm) { shots[+rm.dataset.rm] = null; drawShots(); return; }
+  const fr = e.target.closest('[data-slot]'); if (fr) pick(+fr.dataset.slot);
+};
 $('#file').onchange = async e => {
   const f = e.target.files[0]; e.target.value = '';
   if (!f) return;
-  showErr($('#homeErr'), '');
-  try { runCheck(await prepPhoto(f)); }
-  catch { showErr($('#homeErr'), 'We couldn\'t open that photo. Try taking it again.'); }
+  showErr($('#shotErr'), '');
+  try { shots[slot] = await prepPhoto(f); drawShots(); }
+  catch { showErr($('#shotErr'), 'We couldn\'t open that photo. Try taking it again.'); }
 };
+$('#btnCheck').onclick = () => { const list = shots.filter(Boolean); if (list.length) runCheck(list); };
 $('#nafdacForm').onsubmit = e => {
   e.preventDefault();
   runCheck(null, { nafdac: $('#regno').value.trim(), name: $('#pname').value.trim() });
@@ -124,8 +143,9 @@ function stepper(fast) {
   };
 }
 
-async function runCheck(photo, number) {
-  current = { photo, number };
+async function runCheck(photos, number) {
+  const photo = photos?.[0];
+  current = { photo, photos, number };
   $('#scanImg').innerHTML = photo ? `<img src="${photo.dataUrl}" alt="Your photo">`
     : `<div class="ph" style="display:grid;place-items:center;color:#cfe;font-size:28px;font-weight:800">${esc(number.nafdac)}</div>`;
   go('scan');
@@ -133,7 +153,7 @@ async function runCheck(photo, number) {
   try {
     const res = await fetch('/api/analyze', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(photo ? { image: photo.b64 } : number),
+      body: JSON.stringify(photo ? { images: photos.map(p => p.b64) } : number),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'The check didn\'t finish. Try again.');
@@ -143,8 +163,8 @@ async function runCheck(photo, number) {
     showResult(data, photo?.dataUrl);
   } catch (err) {
     await finish();
-    go(photo ? 'home' : 'nafdac');
-    showErr(photo ? $('#homeErr') : $('#numErr'), err.message === 'Failed to fetch' ? 'You seem to be offline. Check your connection and try again.' : err.message);
+    go(photo ? 'shots' : 'nafdac');
+    showErr(photo ? $('#shotErr') : $('#numErr'), err.message === 'Failed to fetch' ? 'You seem to be offline. Check your connection and try again.' : err.message);
   }
 }
 
@@ -187,6 +207,7 @@ function showResult(d, photoUrl) {
      <div><h2 class="${cls}">${esc(d.headline)}</h2><p>${sub}</p></div>
    </div>
    ${d.label?.product_name || d.label?.brand ? `<p class="muted" style="margin-top:14px">We read: <b style="color:var(--text)">${esc([d.label.brand, d.label.product_name].filter(Boolean).join(' · '))}</b>${d.label.nafdac_number ? ` · NAFDAC ${esc(d.label.nafdac_number)}` : ''}</p>` : ''}
+   ${current?.photos?.length > 1 ? `<div class="strip">${current.photos.map(p => `<img src="${p.dataUrl}" alt="">`).join('')}</div>` : ''}
    <div class="sec"><h2>Why we scored it this way</h2>
      ${d.reasons.map(r => `<div class="reason"><span class="ic ${r.level === 'flag' ? 'flag' : r.level === 'warn' ? 'warn' : r.level === 'ok' ? 'ok' : 'info'}">${ICON[r.level]}</span><div><b>${esc(r.title)}</b><span>${esc(r.detail)}</span></div></div>`).join('')}
    </div>

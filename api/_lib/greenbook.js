@@ -8,11 +8,13 @@ const BASE = 'https://greenbook.nafdac.gov.ng/';
 const COLS = ['product_name', 'ingredient.ingredient_name', 'product_category.name', 'product_category_id',
   'ingredient.synonym', 'NAFDAC', 'form.name', 'route.name', 'strength', 'applicant.name', 'approval_date', 'status'];
 
-let snapshot = null;
+let snapshot = null, snapshotIsFull = false;
 function loadSnapshot() {
   if (!snapshot) {
-    const p = path.join(process.cwd(), 'data', 'greenbook_sample.json');
-    snapshot = JSON.parse(fs.readFileSync(p, 'utf8')).rows;
+    // Prefer the full copy made by tools/sync_greenbook.mjs; fall back to the small demo sample.
+    const full = path.join(process.cwd(), 'data', 'greenbook_full.json');
+    snapshotIsFull = fs.existsSync(full);
+    snapshot = JSON.parse(fs.readFileSync(snapshotIsFull ? full : path.join(process.cwd(), 'data', 'greenbook_sample.json'), 'utf8')).rows;
   }
   return snapshot;
 }
@@ -96,8 +98,8 @@ export async function checkGreenbook(label) {
       suggestion = byName.find(r => r.status === 'Active') || byName[0] || null;
     } catch { /* suggestion is optional */ }
   }
-  if (source === 'snapshot') {
-    // The snapshot only covers demo products, so "not in snapshot" is not proof of anything.
+  if (source === 'snapshot' && !snapshotIsFull) {
+    // The small sample only covers demo products, so "not in the sample" is not proof of anything.
     return { status: 'unavailable', source, suggestion };
   }
   return { status: 'not_found', source, suggestion };

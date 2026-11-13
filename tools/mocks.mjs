@@ -12,7 +12,7 @@ export function install() {
     const u = String(url);
     if (u.includes('generativelanguage.googleapis.com')) {
       const body = JSON.parse(opts.body);
-      const isCompare = body.contents[0].parts.length > 2;
+      const isCompare = /Photo A was taken/.test(body.contents[0].parts[0].text);
       const out = isCompare
         ? { same_product: true, similarity: 47, differences: [{ what: 'Logo typeface is thinner', box: [80, 120, 260, 820] }, { what: 'Blue band is a lighter shade', box: [600, 0, 760, 1000] }] }
         : { is_product_photo: true, read_ok: true, category: 'drug', brand: 'Emzor', product_name: 'Paracetamol Tablets 500mg', manufacturer: 'Emzor Pharmaceutical Industries Ltd',

@@ -76,18 +76,19 @@ const LABEL_SCHEMA = {
   required: ['is_product_photo', 'read_ok', 'category', 'issues'],
 };
 
-export async function readLabel(photoB64) {
-  const prompt = `You are checking a photo of a product pack bought in Nigeria for signs of counterfeiting.
-Read the label and fill in the fields. Copy text exactly as printed; leave a field empty if it isn't visible.
+export async function readLabel(photos) {
+  const list = [photos].flat();
+  const prompt = `You are checking ${list.length > 1 ? `${list.length} photos of the SAME product pack, taken from different angles,` : 'a photo of a product pack'} bought in Nigeria for signs of counterfeiting.
+Read the label${list.length > 1 ? ', combining what you can see across all the photos,' : ''} and fill in the fields. Copy text exactly as printed; leave a field empty if it isn't visible.
 In "issues", list ONLY concrete, visible problems a careful pharmacist would point out, such as:
 - misspelled words or brand names (quote the wrong and the right spelling)
 - blurry, smudged, misaligned or low-quality printing
 - missing batch number, manufacture date or expiry date (only if the part of the pack that should show them is visible)
 - an expiry date that has already passed (today is ${new Date().toISOString().slice(0, 10)})
-- inconsistent information (different strengths, names or numbers in different places)
+- inconsistent information (different strengths, names or numbers in different places or between photos)
 Each issue: a short title (max 7 words) and one sentence of detail written for an ordinary shopper.
 Do not list an issue just because you are unsure. Do not guess whether the product is fake overall.`;
-  return ask([{ text: prompt }, img(photoB64)], LABEL_SCHEMA);
+  return ask([{ text: prompt }, ...list.map(b => img(b))], LABEL_SCHEMA);
 }
 
 const COMPARE_SCHEMA = {
