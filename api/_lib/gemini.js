@@ -16,7 +16,7 @@ async function ask(parts, schema) {
   for (const m of workingModel ? [workingModel] : MODELS) {
     const res = await fetch(URL_(m), {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, body,
-      signal: AbortSignal.timeout(25000),
+      signal: AbortSignal.timeout(55000),
     });
     if (res.ok) {
       workingModel = m;
