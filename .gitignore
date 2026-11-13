@@ -1,0 +1,11 @@
+node_modules/
+.env
+.near-credentials/
+.vercel/
+dataset/
+references/**/*.jpg
+references/**/*.jpeg
+references/**/*.png
+references/**/*.webp
+!references/_example/**
+*.log

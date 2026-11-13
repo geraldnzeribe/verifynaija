@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VerifyNaija: check if a product is fake</title>
+<meta name="description" content="Photograph a product pack. VerifyNaija checks its NAFDAC number, compares it with the genuine pack, and shows counterfeit reports from other buyers, stored on NEAR.">
+<meta name="theme-color" content="#0F3A2C">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230F3A2C'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='%23fff' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#0F3A2C"/><path d="M9 16.5l4.5 4.5L23 11.5" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      VerifyNaija
+    </div>
+    <a class="chip-net" id="netChip" target="_blank" rel="noopener">NEAR testnet</a>
+  </header>
+
+  <main>
+    <section class="screen on" id="s-home">
+      <div class="hero">
+        <svg class="rose" viewBox="0 0 300 300" aria-hidden="true"><defs>
+          <linearGradient id="holo" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#57D6C3"/><stop offset=".35" stop-color="#8B7CF6"/>
+            <stop offset=".65" stop-color="#F28AC4"/><stop offset="1" stop-color="#F6D365"/></linearGradient></defs>
+          <g class="spin" id="rosette"></g></svg>
+        <button class="shutter" id="btnPhoto">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-2.5h6L17 8h3a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1z"/><circle cx="12" cy="13" r="3.6"/></svg>
+          Snap the pack
+        </button>
+        <input type="file" id="file" accept="image/*" capture="environment" hidden>
+      </div>
+      <h1>Is this product fake?</h1>
+      <p class="lede">Photograph the pack. We check its NAFDAC number, compare it with the genuine pack, and show what other buyers have reported.</p>
+      <div class="alt"><button class="link" data-go="nafdac">Type the NAFDAC number instead</button></div>
+      <p class="err" id="homeErr" role="alert" hidden></p>
+
+      <div class="samples">
+        <h2>Try a sample <span class="demo-tag">Demo</span></h2>
+        <button class="sample" data-sample="fake">
+          <span class="pk" style="background:#E8F0FB"><svg width="28" height="28" viewBox="0 0 28 28"><rect x="4" y="9" width="20" height="10" rx="3" fill="#1F5FBF"/><rect x="20" y="11" width="6" height="6" rx="1.5" fill="#d9e3f3"/></svg></span>
+          <span><b>Toothpaste bought at a market stall</b><span>Sample with three red flags</span></span>
+        </button>
+        <button class="sample" data-sample="clean">
+          <span class="pk" style="background:#FFF4DA"><svg width="28" height="28" viewBox="0 0 28 28"><rect x="7" y="5" width="14" height="19" rx="3" fill="#E9B526"/><rect x="9" y="3" width="10" height="4" rx="1.5" fill="#1d3d8f"/></svg></span>
+          <span><b>Milk tin from a supermarket</b><span>Sample with no red flags</span></span>
+        </button>
+      </div>
+    </section>
+
+    <section class="screen" id="s-nafdac">
+      <button class="back" data-go="home">‹ Back</button>
+      <h1 style="text-align:left;font-size:28px">Check a NAFDAC number</h1>
+      <p class="lede" style="text-align:left;margin-left:0">It's printed on medicine packs, usually as "NAFDAC Reg. No." followed by a code like 04-0411 or A4-1234.</p>
+      <form class="sheetpanel" id="nafdacForm">
+        <label class="f" for="regno">NAFDAC number</label>
+        <input class="input" id="regno" placeholder="e.g. 04-0411" autocomplete="off" required minlength="4" maxlength="20">
+        <label class="f" for="pname">Product name on the pack <span class="muted" style="font-weight:400">(optional)</span></label>
+        <input class="input" id="pname" placeholder="e.g. Emzor Paracetamol" maxlength="80">
+        <div style="height:16px"></div>
+        <button class="btn primary" type="submit">Check this number</button>
+        <p class="err" id="numErr" role="alert" hidden></p>
+      </form>
+    </section>
+
+    <section class="screen" id="s-scan">
+      <div class="scanframe"><div id="scanImg"></div><div class="corners"></div><div class="sweep"></div></div>
+      <ol class="steps" id="steps">
+        <li><span class="dot"></span>Reading the label</li>
+        <li><span class="dot"></span>Looking up the NAFDAC Greenbook</li>
+        <li><span class="dot"></span>Comparing with the genuine pack</li>
+        <li><span class="dot"></span>Checking reports from other buyers</li>
+      </ol>
+    </section>
+
+    <section class="screen" id="s-result"></section>
+
+    <section class="screen" id="s-map">
+      <h1 style="text-align:left;font-size:28px">Where fakes are turning up</h1>
+      <p class="lede" style="text-align:left;margin-left:0">Reports from buyers in the last 30 days. Every report is stored on NEAR, so nobody can quietly delete it.</p>
+      <div class="filters" id="filters">
+        <button class="on" data-f="all">All</button><button data-f="drug">Medicines</button>
+        <button data-f="food">Food & drinks</button><button data-f="personal_care">Personal care</button><button data-f="electronics">Electronics</button>
+      </div>
+      <div class="mapwrap"><svg id="map" viewBox="0 0 360 300" role="img" aria-label="Map of Nigeria showing where fakes were reported"></svg></div>
+      <p class="mapnote" id="mapNote"></p>
+      <div class="sec"><h2>Top hotspots</h2><div class="hotlist" id="hotlist"></div></div>
+      <div class="sec"><h2>Latest reports</h2><div id="latest"></div></div>
+    </section>
+
+    <section class="screen" id="s-mine">
+      <h1 style="text-align:left;font-size:28px">Your reports</h1>
+      <p class="lede" style="text-align:left;margin-left:0">Reports you've filed from this phone, with their NEAR record.</p>
+      <div id="mine" class="sec"></div>
+    </section>
+  </main>
+
+  <nav class="tabs" aria-label="Main">
+    <button class="on" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3"/><path d="M8 12h8"/></svg>Check</button>
+    <button data-tab="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-6-5.6-6-10.5a6 6 0 0112 0C18 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.2"/></svg>Hotspots</button>
+    <button data-tab="mine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4h10a1 1 0 011 1v15l-6-3.5L6 20V5a1 1 0 011-1z"/></svg>My reports</button>
+  </nav>
+</div>
+
+<div class="overlay" id="ov"></div>
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dtitle"></div>
+<div class="toast" id="toast" role="status"></div>
+<script src="/app.js" type="module"></script>
+</body>
+</html>

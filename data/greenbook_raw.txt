@@ -1,0 +1,18 @@
+Emzor Paracetamol Dispersible Tablet**|A11-0947|Emzor Pharmaceutical Industries Limited|Dispersible tablet|125 mg|Active|2024-06-27|2029-06-26|Paracetamol
+Emzor Paracetamol Drops## (strength format)|A4-7579|Emzor Pharmaceutical Industries Limited|Drops|100mg/15ml|Active|2023-11-30|2028-11-29|Paracetamol
+Emzor Paracetamol Syrup##|04-0289|Emzor Pharmaceutical Industries Limited|Syrup|125 mg/5 mL|Active|2023-11-30|2028-11-29|Paracetamol
+Emzor Paracetamol Tablet## (check description)|04-0411|Emzor Pharmaceutical Industries Limited|Tablet|500 mg|Active|2023-03-28|2028-03-27|Paracetamol
+Panadol Extra Caplet**|04-0005|GlaxoSmithKline Consumer Nigeria PLC (GSK)|Caplet|500 mg; 30 mg|Inactive|2021-10-28|2026-10-27|Paracetamol; Caffeine
+Coartem 20/120 Dispersible Tablets**|A4-1680|Novartis Nigeria Limited|Dispersible tablet|20 mg; 120 mg|Inactive|2021-03-29|2026-03-28|Artemether; Lumefantrine
+Coartem 20/120 Tablets**|04-3275|Novartis Nigeria Limited|Tablet|20 mg; 120 mg|Inactive|2021-03-29|2026-03-28|Artemether; Lumefantrine
+Coartem 80/480 Tablets**|B4-0262|Novartis Nigeria Limited|Tablet|80 mg; 480 mg|Inactive|2021-03-29|2026-03-28|Artemether; Lumefantrine
+Lonart 20/120 Powder For Oral Suspension##|04-8970|Greenlife Pharmaceutical Limited|Powder for oral Suspension|20 mg; 120 mg|Active|2025-03-27|2030-03-26|Artemether; Lumefantrine
+Lonart Dispersible Tablets**|A4-4238|Greenlife Herbal Network Limited|Dispersible tablet|20 mg; 120 mg|Active|2025-08-27|2030-08-26|Artemether; Lumefantrine
+Lonart Tablets**|04-8969|Greenlife Pharmaceutical Limited|Tablet|20 mg; 120 mg|Active|2023-04-26|2028-04-25|Artemether; Lumefantrine
+Lonart-DS Tablets**|04-9927|Greenlife Pharmaceutical Limited|Tablet|80 mg; 480 mg|Active|2024-09-25|2029-09-24|Artemether; Lumefantrine
+Amatem 20/120 Softgel**|B4-0953|Elbe Pharma Nigeria Limited|Capsule|20 mg; 120 mg|Inactive|2021-02-25|2026-02-24|Artemether; Lumefantrine
+Amatem Forte Tablets**|A4-3489|Elbe Pharma Nigeria Limited|Tablet|80 mg; 480 mg|Active|2024-03-27|2029-03-26|Artemether; Lumefantrine
+Postinor 2##|04-6985|Society for Family Health|Tablet|0.75 mg|Inactive|2021-03-29|2026-03-28|Levonorgestrel
+Augmentin 1 G**|04-8655|GlaxoSmithKline Consumer Nigeria PLC (GSK)|Tablet|875 mg; 125 mg|Active|2023-04-26|2028-04-25|Amoxicillin; Clavulanic Acid
+Augmentin 625 mg**|04-1928|GlaxoSmithKline Consumer Nigeria PLC (GSK)|Tablet|500 mg; 125 mg|Active|2023-04-26|2028-04-25|Amoxicillin; Clavulanic Acid
+Augmentin Tablets 375 mg**|04-2466|GlaxoSmithKline Consumer Nigeria PLC (GSK)|Tablet|250 mg; 125 mg|Active|2023-04-26|2028-04-25|Amoxicillin; Clavulanic Acid

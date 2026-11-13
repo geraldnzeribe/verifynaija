@@ -1,0 +1,17 @@
+{
+  "name": "verifynaija",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Check whether a product sold in Nigeria shows signs of being fake: NAFDAC Greenbook lookup, AI label and pack comparison, and counterfeit reports stored on NEAR.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node contract/test.mjs && node tools/test_scoring.mjs",
+    "build:contract": "python3 -m ziglang cc -target wasm32-freestanding -mcpu=mvp -O2 -nostdlib -fno-builtin -Wl,--no-entry -Wl,--strip-all -o contract/verifynaija.wasm contract/verifynaija.c",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "near-api-js": "5.1.1"
+  },
+  "engines": { "node": ">=20" }
+}

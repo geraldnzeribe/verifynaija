@@ -1,0 +1,203 @@
+{
+ "source": "NAFDAC Greenbook (greenbook.nafdac.gov.ng), snapshot 2026-11-13",
+ "rows": [
+  {
+   "name": "Emzor Paracetamol Dispersible Tablet",
+   "nafdac": "A11-0947",
+   "holder": "Emzor Pharmaceutical Industries Limited",
+   "form": "Dispersible tablet",
+   "strength": "125 mg",
+   "status": "Active",
+   "approved": "2024-06-27",
+   "expires": "2029-06-26",
+   "ingredients": "Paracetamol"
+  },
+  {
+   "name": "Emzor Paracetamol Drops",
+   "nafdac": "A4-7579",
+   "holder": "Emzor Pharmaceutical Industries Limited",
+   "form": "Drops",
+   "strength": "100mg/15ml",
+   "status": "Active",
+   "approved": "2023-11-30",
+   "expires": "2028-11-29",
+   "ingredients": "Paracetamol"
+  },
+  {
+   "name": "Emzor Paracetamol Syrup",
+   "nafdac": "04-0289",
+   "holder": "Emzor Pharmaceutical Industries Limited",
+   "form": "Syrup",
+   "strength": "125 mg/5 mL",
+   "status": "Active",
+   "approved": "2023-11-30",
+   "expires": "2028-11-29",
+   "ingredients": "Paracetamol"
+  },
+  {
+   "name": "Emzor Paracetamol Tablet",
+   "nafdac": "04-0411",
+   "holder": "Emzor Pharmaceutical Industries Limited",
+   "form": "Tablet",
+   "strength": "500 mg",
+   "status": "Active",
+   "approved": "2023-03-28",
+   "expires": "2028-03-27",
+   "ingredients": "Paracetamol"
+  },
+  {
+   "name": "Panadol Extra Caplet",
+   "nafdac": "04-0005",
+   "holder": "GlaxoSmithKline Consumer Nigeria PLC (GSK)",
+   "form": "Caplet",
+   "strength": "500 mg; 30 mg",
+   "status": "Inactive",
+   "approved": "2021-10-28",
+   "expires": "2026-10-27",
+   "ingredients": "Paracetamol; Caffeine"
+  },
+  {
+   "name": "Coartem 20/120 Dispersible Tablets",
+   "nafdac": "A4-1680",
+   "holder": "Novartis Nigeria Limited",
+   "form": "Dispersible tablet",
+   "strength": "20 mg; 120 mg",
+   "status": "Inactive",
+   "approved": "2021-03-29",
+   "expires": "2026-03-28",
+   "ingredients": "Artemether; Lumefantrine"
+  },
+  {
+   "name": "Coartem 20/120 Tablets",
+   "nafdac": "04-3275",
+   "holder": "Novartis Nigeria Limited",
+   "form": "Tablet",
+   "strength": "20 mg; 120 mg",
+   "status": "Inactive",
+   "approved": "2021-03-29",
+   "expires": "2026-03-28",
+   "ingredients": "Artemether; Lumefantrine"
+  },
+  {
+   "name": "Coartem 80/480 Tablets",
+   "nafdac": "B4-0262",
+   "holder": "Novartis Nigeria Limited",
+   "form": "Tablet",
+   "strength": "80 mg; 480 mg",
+   "status": "Inactive",
+   "approved": "2021-03-29",
+   "expires": "2026-03-28",
+   "ingredients": "Artemether; Lumefantrine"
+  },
+  {
+   "name": "Lonart 20/120 Powder For Oral Suspension",
+   "nafdac": "04-8970",
+   "holder": "Greenlife Pharmaceutical Limited",
+   "form": "Powder for oral Suspension",
+   "strength": "20 mg; 120 mg",
+   "status": "Active",
+   "approved": "2025-03-27",
+   "expires": "2030-03-26",
+   "ingredients": "Artemether; Lumefantrine"
+  },
+  {
+   "name": "Lonart Dispersible Tablets",
+   "nafdac": "A4-4238",
+   "holder": "Greenlife Herbal Network Limited",
+   "form": "Dispersible tablet",
+   "strength": "20 mg; 120 mg",
+   "status": "Active",
+   "approved": "2025-08-27",
+   "expires": "2030-08-26",
+   "ingredients": "Artemether; Lumefantrine"
+  },
+  {
+   "name": "Lonart Tablets",
+   "nafdac": "04-8969",
+   "holder": "Greenlife Pharmaceutical Limited",
+   "form": "Tablet",
+   "strength": "20 mg; 120 mg",
+   "status": "Active",
+   "approved": "2023-04-26",
+   "expires": "2028-04-25",
+   "ingredients": "Artemether; Lumefantrine"
+  },
+  {
+   "name": "Lonart-DS Tablets",
+   "nafdac": "04-9927",
+   "holder": "Greenlife Pharmaceutical Limited",
+   "form": "Tablet",
+   "strength": "80 mg; 480 mg",
+   "status": "Active",
+   "approved": "2024-09-25",
+   "expires": "2029-09-24",
+   "ingredients": "Artemether; Lumefantrine"
+  },
+  {
+   "name": "Amatem 20/120 Softgel",
+   "nafdac": "B4-0953",
+   "holder": "Elbe Pharma Nigeria Limited",
+   "form": "Capsule",
+   "strength": "20 mg; 120 mg",
+   "status": "Inactive",
+   "approved": "2021-02-25",
+   "expires": "2026-02-24",
+   "ingredients": "Artemether; Lumefantrine"
+  },
+  {
+   "name": "Amatem Forte Tablets",
+   "nafdac": "A4-3489",
+   "holder": "Elbe Pharma Nigeria Limited",
+   "form": "Tablet",
+   "strength": "80 mg; 480 mg",
+   "status": "Active",
+   "approved": "2024-03-27",
+   "expires": "2029-03-26",
+   "ingredients": "Artemether; Lumefantrine"
+  },
+  {
+   "name": "Postinor 2",
+   "nafdac": "04-6985",
+   "holder": "Society for Family Health",
+   "form": "Tablet",
+   "strength": "0.75 mg",
+   "status": "Inactive",
+   "approved": "2021-03-29",
+   "expires": "2026-03-28",
+   "ingredients": "Levonorgestrel"
+  },
+  {
+   "name": "Augmentin 1 G",
+   "nafdac": "04-8655",
+   "holder": "GlaxoSmithKline Consumer Nigeria PLC (GSK)",
+   "form": "Tablet",
+   "strength": "875 mg; 125 mg",
+   "status": "Active",
+   "approved": "2023-04-26",
+   "expires": "2028-04-25",
+   "ingredients": "Amoxicillin; Clavulanic Acid"
+  },
+  {
+   "name": "Augmentin 625 mg",
+   "nafdac": "04-1928",
+   "holder": "GlaxoSmithKline Consumer Nigeria PLC (GSK)",
+   "form": "Tablet",
+   "strength": "500 mg; 125 mg",
+   "status": "Active",
+   "approved": "2023-04-26",
+   "expires": "2028-04-25",
+   "ingredients": "Amoxicillin; Clavulanic Acid"
+  },
+  {
+   "name": "Augmentin Tablets 375 mg",
+   "nafdac": "04-2466",
+   "holder": "GlaxoSmithKline Consumer Nigeria PLC (GSK)",
+   "form": "Tablet",
+   "strength": "250 mg; 125 mg",
+   "status": "Active",
+   "approved": "2023-04-26",
+   "expires": "2028-04-25",
+   "ingredients": "Amoxicillin; Clavulanic Acid"
+  }
+ ]
+}
