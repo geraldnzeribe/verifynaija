@@ -7,7 +7,7 @@ let workingModel = null;
 let noThinkingOk = null;   // null = untested, false = model rejected thinkingConfig
 const post = (m, key, body) => fetch(URL_(m), {
   method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, body,
-  signal: AbortSignal.timeout(25000),
+  signal: AbortSignal.timeout(55000),
 });
 
 async function ask(parts, schema) {
