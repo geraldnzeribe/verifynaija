@@ -57,11 +57,19 @@ async function query(field, value, length = 10) {
   return (j.data || []).map(trim);
 }
 
-/** Does the product on the pack plausibly match the registered record? */
-function namesMatch(record, label) {
-  const rec = new Set([...words(record.name), ...words(record.holder), ...words(record.ingredients)]);
-  const seen = [...words(label.product_name), ...words(label.brand), ...words(label.manufacturer)];
-  if (!seen.length) return true;               // nothing to compare against: don't accuse
+// Words that say what a product IS rather than who makes it. Matching on these would let a copied
+// number pass (a fake "Paramol Paracetamol" using Emzor Paracetamol's number shares "paracetamol").
+const GENERIC = new Set(['tablet', 'tablets', 'tabs', 'caplet', 'caplets', 'capsule', 'capsules', 'syrup', 'suspension', 'injection',
+  'cream', 'drops', 'powder', 'oral', 'dispersible', 'film', 'coated', 'extra', 'forte', 'plus', 'limited', 'ltd', 'plc', 'nigeria',
+  'pharmaceutical', 'pharmaceuticals', 'pharma', 'industries', 'industry', 'company', 'healthcare', 'laboratories', 'consumer', 'and', 'for', 'the']);
+
+/** Does the brand/maker on the pack match the registered record? */
+export function namesMatch(record, label) {
+  const ingredients = new Set(words(record.ingredients));
+  const distinctive = ws => ws.filter(w => !GENERIC.has(w) && !ingredients.has(w) && !/^\d/.test(w));
+  const rec = new Set(distinctive([...words(record.name), ...words(record.holder)]));
+  const seen = distinctive([...words(label.brand), ...words(label.product_name), ...words(label.manufacturer)]);
+  if (!seen.length || !rec.size) return true;    // nothing distinctive to compare: don't accuse
   return seen.some(w => rec.has(w));
 }
 

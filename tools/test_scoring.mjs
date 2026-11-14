@@ -41,3 +41,12 @@ assert.deepEqual([c.product, c.price, c.photo, c.flags, c.evil], ['Lonart DS', 1
 assert.throws(() => cleanReport({ product: 'x' }), /state/);
 
 console.log('All scoring and validation tests passed.');
+
+// Greenbook brand matching: a copied number with a different brand must not count as a match
+import { namesMatch } from '../api/_lib/greenbook.js';
+const emzor = { name: 'Emzor Paracetamol Tablet', holder: 'Emzor Pharmaceutical Industries Limited', ingredients: 'Paracetamol' };
+assert.equal(namesMatch(emzor, { brand: 'PARAMOL', product_name: 'PARAMOL Paracetamol Tablets BP 500mg', manufacturer: 'Paramol Pharma Ltd, Onitsha' }), false);
+assert.equal(namesMatch(emzor, { brand: 'Emzor', product_name: 'Paracetamol Tablets 500mg' }), true);
+assert.equal(namesMatch(emzor, { product_name: 'Paracetamol Tablets 500mg' }), true);   // no brand visible: don't accuse
+assert.equal(namesMatch({ name: 'Lonart-DS Tablets', holder: 'Greenlife Pharmaceutical Limited', ingredients: 'Artemether; Lumefantrine' }, { brand: 'Lonart DS' }), true);
+console.log('Greenbook brand-matching tests passed.');
